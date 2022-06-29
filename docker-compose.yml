@@ -2,6 +2,32 @@ version: '3.1'
 
 services:
 
+  api:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      labels:
+        project: "api"
+    volumes:
+      - ./src:/app/src
+      - ./manage.py:/app/manage.py
+      - ./wait-for-it.sh:/app/wait-for-it.sh
+
+    working_dir: /app
+    command: [
+      "./wait-for-it.sh",
+      "db:3306",
+      "--",
+      "python3",
+      "manage.py",
+      "runserver",
+      "0.0.0.0:8000"
+    ]
+    ports:
+     - "8000:8000"
+    env_file: .env
+
+
   db:
     image: mariadb
     environment:
