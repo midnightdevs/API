@@ -13,3 +13,11 @@ class Pessoa(ModeloBase):
     """Classe pessoa."""
     nome = models.CharField(max_length=30)
     sobrenome = models.CharField(max_length=30)
+
+class Funcionario(ModeloBase):
+    """Classe Funcionário."""
+    nome = models.CharField(max_length=30)
+    sobrenome = models.CharField(max_length=30)
+    funcao = models.CharField(max_length=20)
+    email = models.CharField(max_length=60)
+    ano_nascimento = models.IntegerField()
