@@ -21,3 +21,20 @@ class Funcionario(ModeloBase):
     funcao = models.CharField(max_length=20)
     email = models.CharField(max_length=60)
     ano_nascimento = models.IntegerField()
+
+class Perfil(ModeloBase):
+    nome = models.CharField(max_length=30)
+    sobrenome = models.CharField(max_length=30)
+    email = models.EmailField()
+    github = models.URLField()
+    avatar = models.ImageField()
+    celular = models.CharField(max_length=20)
+    perfil = models.TextField()
+
+class Curriculo(ModeloBase):
+    empresa = models.CharField(max_length=120)
+    data_inicio = models.DateTimeField()
+    data_saida = models.DateTimeField()
+    empresa_atual = models.BooleanField()
+    resumo = models.TextField()
+

@@ -4,50 +4,12 @@ from django.http import JsonResponse
 from .models import Pessoa, Funcionario
 from .serializers import PessoaSerializer, FuncionarioSerializer
 
-def hello_world(request):
-    return JsonResponse('Hello World', safe=False)
-
-def hello_name(request, name='Marcel'):
-    return JsonResponse({"nome": f'Hello {name}'})
-
-def pessoa_info(request):
-       
-    pessoa = Pessoa()
-    pessoa.nome = 'Marcel'
-    pessoa.sobrenome = 'Fox'
-
-    # Como trazer todos os objetos:
-    # qs_pessoa = Pessoa.objects.all().values()
-
-    qtd_objetos = Pessoa.objects.filter(nome='Marcel').count()
-
-    if qtd_objetos > 1:
-        marcel_existe = Pessoa.objects.filter(nome='Marcel').all()
-        pessoa_serializer = PessoaSerializer(marcel_existe, many=True)
-    else:
-        marcel_existe = Pessoa.objects.filter(nome='Marcel').first()
-        pessoa_serializer = PessoaSerializer(marcel_existe, many=False)
-
-    if marcel_existe:
-        print(pessoa_serializer.data)
-    else:
-        pessoa.save()
-
-    if request.method == 'POST':
-        data = json.loads(request.body)
-
-        nome = data.get('nome')
-        sobrenome = data.get('sobrenome')
-
-        return JsonResponse({'mensagem': f'O nome é {nome}, e o sobrenome é {sobrenome}'})
-
-    if request.method == 'GET':
-        return JsonResponse({"mensagem": pessoa_serializer.data})
-    
-    return JsonResponse({"message": 'funcionario existe'})
+def health(request):
+    return JsonResponse({"mensagem": "ok"}, safe=False)
 
 def funcionario_info(request):
     """View de funcionário."""
+    query_params = request.GET
 
     if request.method == 'GET':
         qs_funcionario = Funcionario.objects.all().values()
@@ -68,9 +30,43 @@ def funcionario_info(request):
         if existe_funcionario:
             return JsonResponse({"mensagem": "O usuário já existe"})
         
-        cadastro = funcionario.save()
-        serializer = FuncionarioSerializer(cadastro, many=False)
-        return JsonResponse(serializer.data)
+        funcionario.save()
+        serializer = FuncionarioSerializer(funcionario, many=False)
+        return JsonResponse({"objeto": serializer.data})
+
+    if request.method == 'DELETE':
+        existe_email = query_params.get('email')
+
+        if existe_email:
+            existe_funcionario = Funcionario.objects.filter(email=existe_email).first()
+
+            if existe_funcionario:
+                serializer = FuncionarioSerializer(existe_funcionario, many=False)
+                existe_funcionario.delete()
+                return JsonResponse({"objeto": serializer.data})
+
+        return JsonResponse({"mensagem": 'Usuário não encontrado'})
+
+    if request.method == 'PUT':
+        data = json.loads(request.body)
+        email = query_params.get('email')
+
+        email_existe = Funcionario.objects.filter(email=data.get('email')).count()
+        if email_existe:
+            return JsonResponse({'mensagem': 'Usuario já existe'})
+
+        funcionario = Funcionario.objects.filter(email=email).first()
+        if funcionario:
+            funcionario.ano_nascimento = data.get('ano_nascimento')
+            funcionario.nome = data.get('nome')
+            funcionario.sobrenome = data.get('sobrenome')
+            funcionario.email = data.get('email')
+            funcionario.funcao = data.get('funcao')
+            funcionario.save()
+            serializer = FuncionarioSerializer(funcionario, many=False)
+            return JsonResponse(serializer.data) 
+
+        return JsonResponse({'mensagem': 'Usuario não encontrado'})
 
     return JsonResponse({"mensagem": "Método inválido"})
 
