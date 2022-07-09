@@ -23,5 +23,7 @@ router = routers.DefaultRouter()
 
 urlpatterns = [
     path('health/', views.health),
-    path('funcionario/', views.funcionario_info)
+    path('funcionario/', views.funcionario_info),
+    path('perfil/', views.perfil_info),
+    path('curriculo/', views.curriculo_info),
 ]
