@@ -141,13 +141,52 @@ def curriculo_info(request):
     query_params = request.GET
 
     if request.method == 'GET':
-        return JsonResponse({'mensagem': 'Curriculo OK'})
+        lista_curriculo = Curriculo.objects.all().values()
+        serializer = CurriculoSerializer(lista_curriculo, many=True)
+        return JsonResponse({'curriculo': serializer.data})
 
     if request.method == 'POST':
         data = json.loads(request.body)
+        existe_empresa = Curriculo.objects.filter(empresa=data.get('empresa')).count()
+
+        if existe_empresa:
+            return JsonResponse({'mensagem': 'Empresa já existe'})
+
+        curriculo = Curriculo()
+        curriculo.empresa = data.get('empresa')
+        curriculo.data_inicio = data.get('data_inicio')
+        curriculo.data_fim = data.get('data_fim')
+        curriculo.empresa_atual = data.get('empresa_atual')
+        curriculo.resumo = data.get('resumo')
+        curriculo.save()
+
+        serializer = CurriculoSerializer(curriculo, many=False)
+        return JsonResponse({"objeto": serializer.data})
 
     if request.method == 'PUT':
         data = json.loads(request.body)
+        existe_empresa = Curriculo.objects.filter(empresa=data.get('empresa')).count()
+        empresa_diferente = data.get('empresa') != query_params.get('empresa')
+
+        if existe_empresa and empresa_diferente:
+            return JsonResponse({'mensagem': 'Empresa já existe'})
+
+        curriculo = Curriculo.objects.filter(empresa=query_params.get('empresa'), many=False)
+        curriculo.empresa = data.get('empresa')
+        curriculo.data_inicio = data.get('data_inicio')
+        curriculo.data_fim = data.get('data_fim')
+        curriculo.empresa_atual = data.get('empresa_atual')
+        curriculo.resumo = data.get('resumo')
+        curriculo.save()
+
+        serializer = CurriculoSerializer(curriculo, many=False)
+        return JsonResponse({"objeto": serializer.data})
     
     if request.method == 'DELETE':
-        return JsonResponse({'mensagem': 'objeto deletado'})
+        curriculo = Curriculo.objects.filter(empresa=query_params.get('curriculo'), many=False)
+
+        if curriculo:
+            curriculo.delete()
+            return JsonResponse({'mensagem': 'objeto deletado'})
+
+        return JsonResponse({'mensagem': 'objeto não encontrado'})
