@@ -27,7 +27,7 @@ class Perfil(ModeloBase):
     sobrenome = models.CharField(max_length=30)
     email = models.EmailField()
     github = models.URLField()
-    avatar = models.ImageField()
+    avatar = models.ImageField(upload_to='static/images', default='avatar.png')
     celular = models.CharField(max_length=20)
     perfil = models.TextField()
 

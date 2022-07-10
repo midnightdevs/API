@@ -111,7 +111,6 @@ def perfil_info(request):
             perfil = Perfil.objects.filter(email=query_params.get('email')).first()
             perfil.nome = data.get('nome')
             perfil.sobrenome = data.get('sobrenome')
-            perfil.avatar = data.get('avatar')
             perfil.email = data.get('email')
             perfil.perfil = data.get('perfil')
             perfil.github = data.get('github')
@@ -155,7 +154,7 @@ def curriculo_info(request):
         curriculo = Curriculo()
         curriculo.empresa = data.get('empresa')
         curriculo.data_inicio = data.get('data_inicio')
-        curriculo.data_fim = data.get('data_fim')
+        curriculo.data_saida = data.get('data_saida')
         curriculo.empresa_atual = data.get('empresa_atual')
         curriculo.resumo = data.get('resumo')
         curriculo.save()
@@ -171,7 +170,7 @@ def curriculo_info(request):
         if existe_empresa and empresa_diferente:
             return JsonResponse({'mensagem': 'Empresa já existe'})
 
-        curriculo = Curriculo.objects.filter(empresa=query_params.get('empresa'), many=False)
+        curriculo = Curriculo.objects.filter(empresa=query_params.get('empresa')).first()
         curriculo.empresa = data.get('empresa')
         curriculo.data_inicio = data.get('data_inicio')
         curriculo.data_fim = data.get('data_fim')
@@ -183,7 +182,7 @@ def curriculo_info(request):
         return JsonResponse({"objeto": serializer.data})
     
     if request.method == 'DELETE':
-        curriculo = Curriculo.objects.filter(empresa=query_params.get('curriculo'), many=False)
+        curriculo = Curriculo.objects.filter(empresa=query_params.get('empresa')).first()
 
         if curriculo:
             curriculo.delete()
