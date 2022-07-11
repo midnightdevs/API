@@ -81,10 +81,13 @@ def perfil_info(request):
     query_params = request.GET
 
     if request.method == 'GET':
-        lista_perfis = Perfil.objects.all().values()
-        serializer = PerfilSerializer(lista_perfis, many=True)
-
-        return JsonResponse({'perfis': serializer.data})
+        if query_params.get('email'):
+            perfil = Perfil.objects.filter(email=query_params.get('email')).first()
+            serializer = PerfilSerializer(perfil, many=False)
+        else:
+            lista_perfis = Perfil.objects.all().values()
+            serializer = PerfilSerializer(lista_perfis, many=True)
+        return JsonResponse(serializer.data, safe=False)
     
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -161,6 +164,20 @@ def perfil_avatar(request):
         return JsonResponse({'mensagem': serializer.data})
 
     if request.method == 'DELETE':
+        perfil = Perfil.objects.filter(email=query_params.get('email')).first()
+        
+        if not perfil:
+            return JsonResponse({'mensagem': 'Perfil não encontrado'})
+        
+        serializer = PerfilSerializer(perfil, many=False)
+        avatar_path = serializer.data.get('avatar')
+
+        if avatar_path and avatar_path != 'default.png':
+            os.remove(settings.MEDIA_ROOT + '/' + str(avatar_path))
+
+        perfil.avatar = 'default.png'
+        perfil.save()
+
         return JsonResponse({'mensagem': 'Imagem deletada'})
     
     return JsonResponse({'mensagem': 'método não suportado'})
