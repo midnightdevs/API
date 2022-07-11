@@ -84,10 +84,11 @@ def perfil_info(request):
         if query_params.get('email'):
             perfil = Perfil.objects.filter(email=query_params.get('email')).first()
             serializer = PerfilSerializer(perfil, many=False)
+            return JsonResponse(serializer.data, safe=False)
         else:
             lista_perfis = Perfil.objects.all().values()
             serializer = PerfilSerializer(lista_perfis, many=True)
-        return JsonResponse(serializer.data, safe=False)
+            return JsonResponse(serializer.data, safe=False)
     
     if request.method == 'POST':
         data = json.loads(request.body)
