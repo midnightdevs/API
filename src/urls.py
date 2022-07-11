@@ -16,6 +16,8 @@ Including another URLconf
 # from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
+from django.conf.urls.static import static
+from django.conf import settings
 
 from .api import views
 
@@ -25,5 +27,6 @@ urlpatterns = [
     path('health/', views.health),
     path('funcionario/', views.funcionario_info),
     path('perfil/', views.perfil_info),
-    path('curriculo/', views.curriculo_info),
-]
+    path('perfil/avatar/', views.perfil_avatar),
+    path('curriculo/', views.curriculo_info)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
